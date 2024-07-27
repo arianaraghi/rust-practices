@@ -1,13 +1,16 @@
 #[macro_use] extern crate nickel;
 
 use nickel::Nickel;
+use std::io::prelude::*;
 use std::fs::File;
+use std::io;
+
 
 
 
 fn main() {
     // pt1();
-    pt2a();
+    // pt2a();
 }
 
 // Part1
@@ -28,10 +31,15 @@ fn pt1() {
 
 // Part2
 fn pt2a() {
-    match File::create("foo.txt") {
-        Ok(_) => println!("File created!"),
-        Err(_) => println!("Error: could not create file.")
+    match log_something("log.txt", b"ITS ALIVE!!!") {
+        Ok(_) => (println!("File created!")),
+        Err(_) => ()
     }
+}
+fn log_something(filename: &str, string: &'static [u8; 12]) -> io::Result<()> {
+    let mut f = File::create(&filename).expect("Failure to create file!");
+    let _ = f.write( string);
+    Ok(())
 }
 
 
