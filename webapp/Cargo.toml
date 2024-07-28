@@ -3,5 +3,8 @@ name = "webapp"
 version = "0.1.0"
 edition = "2021"
 
+[dependencies]
+chrono = "0.2"
+
 [dependencies.nickel]
 git = "https://github.com/nickel-org/nickel.rs.git"
