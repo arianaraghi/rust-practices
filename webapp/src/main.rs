@@ -6,29 +6,30 @@ use std::io::prelude::*;
 use std::fs::File;
 use std::io;
 use chrono::*;
-use fmt::Debug;
+// use std::fmt::Debug;
 
 
 
 
 fn main() {
-    // pt1(say_hello);
+    // pt1(say_hello, "WORK!");
     // pt1();
     // pt2a();
-    pt2b("log3.txt");
-    // pt3();
+    // pt2b("log3.txt");
+    // pt3("log4.txt");
 }
 
 // Part1
-fn say_hello() -> &'static str {
-    "Hello dear world!"
+fn say_hello(hell: &str) -> &'static str {
+    "Hello dear world! {hell}"
 }
-fn pt1(function: fn()->&'static str) {
+fn pt1(f: fn(&str)-> &'static str, arg: &'static str) {
     let mut server = Nickel::new();
+    println!("YES");
 
     server.utilize(router! {
         get "**" => |_req, _res| {
-            function()
+            f(arg);
         }
     });
 
@@ -67,12 +68,11 @@ fn format_time() -> String{
     local.format("%a, %b %d %Y %I:%M:%S %p\n").to_string()
 }
 
-
 // Part3
-fn pt3(){
+fn pt3(filename: &'static str){
+    pt1(do_log, filename);
 
 }
-#[Debug]
 fn do_log(filename: &str) -> &'static str{
     match pt2b(filename) {
         Ok(..) => "File created!",
