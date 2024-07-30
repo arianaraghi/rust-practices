@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 chrono = "0.2"
+clap = "*"
 
 [dependencies.nickel]
 git = "https://github.com/nickel-org/nickel.rs.git"
