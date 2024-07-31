@@ -1,6 +1,8 @@
 // main.rs
 
 #![no_std]
+#![no_main]
+#[no_mangle]
 
 use core::panic::PanicInfo;
 
@@ -14,5 +16,16 @@ fn panic(_info: &PanicInfo) -> ! {
     loop {}
 }
 
-fn main() {
+/// Reqriting the `crt0` (C RunTime Zero) to start at a 
+/// point other than the main() function. We should initialize
+/// the program somewhere other than main, since we don't have 
+/// standard libraries. _start is the starting point of 
+/// compile process, which will be implemented later.
+/// extern "C" is to tell the compiler that it should use the
+/// C calling convention for this function (instead of the 
+/// unspecified Rust calling convention).
+pub extern "C" fn _start() -> ! {
+    loop {}
 }
+
+
