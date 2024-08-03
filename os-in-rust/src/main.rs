@@ -24,8 +24,18 @@ fn panic(_info: &PanicInfo) -> ! {
 /// extern "C" is to tell the compiler that it should use the
 /// C calling convention for this function (instead of the 
 /// unspecified Rust calling convention).
+static HELLO: &[u8] = b"Hello World!"; //Byte version of the string "Hello World!"
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
+    let vga_buffer = 0xb8000 as *mut u8; // VGA text buffer register pointer address
+
+    for (i, &byte) in HELLO.iter().enumerate() {
+        unsafe {
+            *vga_buffer.offset(i as isize * 2) = byte;
+            *vga_buffer.offset(i as isize * 2 + 1) = 0xb; // Light cyan as the forground color
+        }
+    }
+
     loop {}
 }
 
