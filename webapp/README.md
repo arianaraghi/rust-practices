@@ -1,3 +1,5 @@
+# Simple Web App
+
 This part of the repository, specially consists of the tutorial and the course presented in [this link](https://joelmccracken.github.io/entries/a-simple-web-app-in-rust-pt-1/) and all the subsequent links (Part 2a, Part 2b, etc.). 
 
 It is noteworthy that many parts of the tutorial is based on a very old versions of Rust, which are depricated now; hence, I tried to find the right way to code based on the official docs, searches on the internet, and peoples' answers in websites like [StackOverFlow](https://stackoverflow.com/).
