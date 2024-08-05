@@ -72,5 +72,17 @@ struct Buffer {
     chars: [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
 
+/// The writer will always write to the last line and shift 
+/// lines up when a line is full (or on \n)
+pub struct Writer {
+    /// Keeps track of the current position in the last row.
+    column_position: usize,
+    /// The current foreground and background colors 
+    /// are specified by color_code
+    color_code: ColorCode,
+    /// A reference to the VGA buffer is stored in buffer
+    buffer: &'static mut Buffer,
+}
+
 
 ///
