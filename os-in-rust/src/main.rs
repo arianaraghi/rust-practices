@@ -5,6 +5,7 @@
 
 
 use core::panic::PanicInfo;
+mod vga_buffer;
 
 /// This function is called on panic.
 /// The PanicInfo parameter contains the file and line where 
@@ -38,5 +39,7 @@ pub extern "C" fn _start() -> ! {
 
     loop {}
 }
+
+
 
 
