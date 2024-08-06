@@ -1,5 +1,7 @@
 /// Creating a module to use VGA text mode to print characters
 /// on the screen.
+/// 
+use volatile::Volatile;
  
 ////////////////////////////////////////////////////////
 ///                                                  ///
@@ -67,9 +69,19 @@ const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
 
 /// to ensure that it has the same memory layout as its single field.
+/// The problem is that we only write to the Buffer 
+/// and never read from it again. The compiler doesn’t 
+/// know that we really access VGA buffer memory 
+/// (instead of normal RAM) and knows nothing about 
+/// the side effect that some characters appear on the screen. 
+/// So it might decide that these writes are unnecessary 
+/// and can be omitted. To avoid this erroneous optimization, 
+/// we need to specify these writes as volatile. 
+/// This tells the compiler that the write has side effects 
+/// and should not be optimized away.
 #[repr(transparent)]
 struct Buffer {
-    chars: [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
+    chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
 
 /// The writer will always write to the last line and shift 
@@ -95,15 +107,15 @@ impl Writer {
                 if self.column_position >= BUFFER_WIDTH {
                     self.new_line();
                 }
-
+                
                 let row = BUFFER_HEIGHT - 1;
                 let col = self.column_position;
 
                 let color_code = self.color_code;
-                self.buffer.chars[row][col] = ScreenChar {
+                self.buffer.chars[row][col].write(ScreenChar {
                     ascii_character: byte,
                     color_code,
-                };
+                });
                 self.column_position += 1;
             }
         }
@@ -127,4 +139,5 @@ impl Writer {
 }
 
 
-///
+
+
