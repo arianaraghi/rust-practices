@@ -1,6 +1,7 @@
 /// Creating a module to use VGA text mode to print characters
 /// on the screen.
 /// 
+use lazy_static::lazy_static;
 use volatile::Volatile;
 use core::fmt;
  
@@ -164,6 +165,22 @@ impl fmt::Write for Writer {
         Ok(())
     }
 }
+
+/// To provide a global writer that can be used as an interface 
+/// from other modules without carrying a Writer instance around, 
+/// we try to create a static WRITER, using `lazi_static!` macro,
+/// to ensure the static type won't initialize itself until the 
+/// first call, since it can lead to panic.
+lazy_static! {
+    pub static ref WRITER: Writer = Writer {
+        column_position: 0,
+        color_code: ColorCode::new(Color::Yellow, Color::Black),
+        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
+    };
+}
+
+
+
 
 
 
