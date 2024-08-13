@@ -2,6 +2,7 @@
 /// on the screen.
 /// 
 use lazy_static::lazy_static;
+use spin::Mutex;
 use volatile::Volatile;
 use core::fmt;
  
@@ -171,15 +172,17 @@ impl fmt::Write for Writer {
 /// we try to create a static WRITER, using `lazi_static!` macro,
 /// to ensure the static type won't initialize itself until the 
 /// first call, since it can lead to panic.
+/// 
+/// To avoid rewriting and other race condition problems, we need
+/// to use mutex and locking systems, that are not in the standard
+/// library (we don't use std). Hence, we use `spinlock`
 lazy_static! {
-    pub static ref WRITER: Writer = Writer {
+    pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
         color_code: ColorCode::new(Color::Yellow, Color::Black),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
-    };
+    });
 }
-
-
 
 
 
