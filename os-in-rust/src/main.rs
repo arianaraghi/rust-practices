@@ -2,6 +2,9 @@
 
 #![no_std]// don't link the Rust standard library
 #![no_main] // disable all Rust-level entry points
+#![reexport_test_harness_main = "test_main"] // handling test functions errors
+#![feature(custom_test_frameworks)]
+#![test_runner(crate::test_runner)]
 
 
 use core::panic::PanicInfo;
@@ -25,16 +28,31 @@ fn panic(_info: &PanicInfo) -> ! {
 /// extern "C" is to tell the compiler that it should use the
 /// C calling convention for this function (instead of the 
 /// unspecified Rust calling convention).
-static HELLO: &[u8] = b"Hello World!"; //Byte version of the string "Hello World!"
+//static HELLO: &[u8] = b"Hello World!"; //Byte version of the string "Hello World!"
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    use core::fmt::Write;
-    vga_buffer::WRITER.lock().write_str("Hello again").unwrap();
-    write!(vga_buffer::WRITER.lock(), ", some numbers: {} {}", 42, 1.337).unwrap();
+    println!("Hello World{}", "!");
+
+    #[cfg(test)]
+    test_main();
 
     loop {}
 }
 
+/// To implement a custom test framework for our kernel, we add the following.
+#[cfg(test)]
+pub fn test_runner(tests: &[&dyn Fn()]) {
+    println!("Running {} tests", tests.len());
+    for test in tests {
+        test();
+    }
+}
 
-
+/// First test function
+#[test_case]
+fn trivial_assertion() {
+    print!("trivial assertion... ");
+    assert_eq!(1, 1);
+    println!("[ok]");
+}
 
