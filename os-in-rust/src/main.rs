@@ -9,14 +9,27 @@
 
 use core::panic::PanicInfo;
 mod vga_buffer;
+mod serial;
 
 /// This function is called on panic.
 /// The PanicInfo parameter contains the file and line where 
 /// the panic happened and the optional panic message. 
 /// The function should never return, so it is marked as a 
 /// diverging function by returning the “never” type !.
+#[cfg(not(test))] // new attribute
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
+    println!("{}", info);
+    loop {}
+}
+
+// our panic handler in test mode
+#[cfg(test)]
+#[panic_handler]
+fn panic(info: &PanicInfo) -> ! {
+    serial_println!("[failed]\n");
+    serial_println!("Error: {}\n", info);
+    exit_qemu(QemuExitCode::Failed);
     loop {}
 }
 
@@ -59,19 +72,32 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
 
 /// To implement a custom test framework for our kernel, we add the following.
 #[cfg(test)]
-pub fn test_runner(tests: &[&dyn Fn()]) {
-    println!("Running {} tests", tests.len());
+pub fn test_runner(tests: &[&dyn Testable]) { // new
+    serial_println!("Running {} tests", tests.len());
     for test in tests {
-        test();
+        test.run(); // new
     }
     exit_qemu(QemuExitCode::Success);
+}
+
+pub trait Testable {
+    fn run(&self) -> ();
+}
+impl<T> Testable for T
+where
+    T: Fn(),
+{
+    fn run(&self) {
+        serial_print!("{}...\t", core::any::type_name::<T>());
+        self();
+        serial_println!("[ok]");
+    }
 }
 
 /// First test function
 #[test_case]
 fn trivial_assertion() {
-    print!("trivial assertion... ");
     assert_eq!(1, 1);
-    println!("[ok]");
 }
+
 
