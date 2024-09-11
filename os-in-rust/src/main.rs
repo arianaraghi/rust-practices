@@ -4,33 +4,28 @@
 #![no_main] // disable all Rust-level entry points
 #![reexport_test_harness_main = "test_main"] // handling test functions errors
 #![feature(custom_test_frameworks)]
-#![test_runner(crate::test_runner)]
+#![test_runner(blog_os::test_runner)]
 
 
 use core::panic::PanicInfo;
-mod vga_buffer;
-mod serial;
+use blog_os::println;
 
 /// This function is called on panic.
 /// The PanicInfo parameter contains the file and line where 
 /// the panic happened and the optional panic message. 
 /// The function should never return, so it is marked as a 
 /// diverging function by returning the “never” type !.
-#[cfg(not(test))] // new attribute
+#[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
     loop {}
 }
 
-// our panic handler in test mode
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    serial_println!("[failed]\n");
-    serial_println!("Error: {}\n", info);
-    exit_qemu(QemuExitCode::Failed);
-    loop {}
+    blog_os::test_panic_handler(info)
 }
 
 /// Reqriting the `crt0` (C RunTime Zero) to start at a 
